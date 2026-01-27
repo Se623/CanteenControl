@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Блюда</h1>
+{% for dish in dishes%}
+<div class="col-md6 border rounded">
+    <h2>{{dish.name}}</h2>
+</div>
+{% endfor %}
+{% endblock %}

@@ -4,6 +4,7 @@ from flask import Flask, redirect, render_template
 from flask_login import LoginManager, login_required, login_user, logout_user
 
 from data import db_session
+from data.dishes import Dishes
 from data.users import User
 from forms.user import LoginForm, RegisterForm
 
@@ -62,6 +63,13 @@ def login():
                                message="Неправильный логин или пароль",
                                form=form)
     return render_template('login.html', title='Авторизация', form=form)
+
+# Список блюд
+@app.route('/menu', methods=['GET', 'POST'])
+def menu():
+    db_sess = db_session.create_session()
+    dishes = db_sess.query(Dishes).all()
+    return render_template("menu.html", dishes=dishes)
 
 # Выход из аккаунта
 @app.route('/logout')

@@ -2,6 +2,108 @@
 
 <!-- Главная страница -->
 {% block content %}
-<h1>Плейсхолдер</h1>
-
+{% if current_user.is_authenticated %}
+<section class="bg-light py-3 py-md-5 py-xl-8">
+  <div class="container">
+    <div class="row gy-4 gy-lg-0">
+      <div class="col-12 col-lg-4 col-xl-3">
+        <div class="row gy-4">
+          <div class="col-12">
+            <div class="card widget-card border-light shadow-sm">
+              <div class="card-body">
+                <h5 class="text-center mb-1">{{ current_user.name }} {{ current_user.surname }}</h5>
+                <p class="text-center text-secondary mb-4">Ученик</p>
+                <ul class="list-group list-group-flush mb-4">
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <h6 class="m-0">Баланс</h6>
+                    <span>500 ₽</span>
+                  </li>
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <h6 class="m-0">Конец абонимента</h6>
+                    <span>-</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-lg-8 col-xl-9">
+        <div class="card widget-card border-light shadow-sm">
+          <div class="card-body p-4">
+            <ul class="nav nav-tabs" id="profileTab" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview-tab-pane" type="button" role="tab" aria-controls="overview-tab-pane" aria-selected="true">Профиль</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history-tab-pane" type="button" role="tab" aria-controls="history-tab-pane" aria-selected="false">История</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="password-tab" data-bs-toggle="tab" data-bs-target="#password-tab-pane" type="button" role="tab" aria-controls="password-tab-pane" aria-selected="false">Пароль</button>
+              </li>
+            </ul>
+            <div class="tab-content pt-4" id="profileTabContent">
+                <div class="tab-pane fade show active" id="overview-tab-pane" role="tabpanel" aria-labelledby="overview-tab" tabindex="0">
+                    <h5 class="mb-3">Профиль</h5>
+                    <div class="row g-0">
+                    <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
+                        <div class="p-2">Имя</div>
+                    </div>
+                    <div class="col-7 col-md-9 bg-light border-start border-bottom border-white border-3">
+                        <div class="p-2">{{ current_user.name }}</div>
+                    </div>
+                    <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
+                        <div class="p-2">Фамилия</div>
+                    </div>
+                    <div class="col-7 col-md-9 bg-light border-start border-bottom border-white border-3">
+                        <div class="p-2">{{ current_user.surname }}</div>
+                    </div>
+                    <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
+                        <div class="p-2">Отчество</div>
+                    </div>
+                    <div class="col-7 col-md-9 bg-light border-start border-bottom border-white border-3">
+                        <div class="p-2">{{ current_user.patronymic }}</div>
+                    </div>
+                    <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
+                        <div class="p-2">Почта</div>
+                    </div>
+                    <div class="col-7 col-md-9 bg-light border-start border-bottom border-white border-3">
+                        <div class="p-2">{{ current_user.email }}</div>
+                    </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="history-tab-pane" role="tabpanel" aria-labelledby="history-tab" tabindex="0">
+                    <div>аааааа</div>
+                </div>
+                <div class="tab-pane fade" id="password-tab-pane" role="tabpanel" aria-labelledby="password-tab" tabindex="0">
+                    <form action="#!">
+                    <div class="row gy-3 gy-xxl-4">
+                        <div class="col-12">
+                        <label for="currentPassword" class="form-label">Текущий пароль</label>
+                        <input type="password" class="form-control" id="currentPassword">
+                        </div>
+                        <div class="col-12">
+                        <label for="newPassword" class="form-label">Новый пароль</label>
+                        <input type="password" class="form-control" id="newPassword">
+                        </div>
+                        <div class="col-12">
+                        <label for="confirmPassword" class="form-label">Повторите пароль</label>
+                        <input type="password" class="form-control" id="confirmPassword">
+                        </div>
+                        <div class="col-12">
+                        <button type="submit" class="btn btn-primary">Изменить пароль</button>
+                        </div>
+                    </div>
+                    </form>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% else %}
+<h6>Пожалуйста, войдите или зарегистрируетесь!</h6>
+{% endif %}
 {% endblock %}

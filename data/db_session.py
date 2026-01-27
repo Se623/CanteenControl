@@ -22,6 +22,7 @@ def global_init(db_file):
     __factory = orm.sessionmaker(bind=engine)
 
     from . import users
+    from . import dishes
 
     SqlAlchemyBase.metadata.create_all(engine)
 
