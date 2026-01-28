@@ -4,7 +4,7 @@ from flask import Flask, redirect, render_template
 from flask_login import LoginManager, login_required, login_user, logout_user
 
 from data import db_session
-from data.dishes import Dishes
+from data.dishes import Dish
 from data.users import User
 from forms.user import LoginForm, RegisterForm
 
@@ -66,10 +66,23 @@ def login():
 
 # Список блюд
 @app.route('/menu', methods=['GET', 'POST'])
+@login_required
 def menu():
     db_sess = db_session.create_session()
-    dishes = db_sess.query(Dishes).all()
+    dishes = db_sess.query(Dish).all()
     return render_template("menu.html", dishes=dishes)
+
+# Страница блюда
+@app.route('/menu/dish/<int:dish_id>', methods=['GET', 'POST'])
+@login_required
+def dish(dish_id):
+    db_sess = db_session.create_session()
+    db_dish = db_sess.get(Dish, dish_id)
+
+    if db_dish is None:
+        return render_template('404.html'), 404
+
+    return render_template("dish.html", dish=db_dish)
 
 # Выход из аккаунта
 @app.route('/logout')

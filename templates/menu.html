@@ -2,9 +2,11 @@
 
 {% block content %}
 <h1>Блюда</h1>
-{% for dish in dishes%}
-<div class="col-md6 border rounded">
-    <h2>{{dish.name}}</h2>
+<div class="row row-cols-3">
+    {% for dish in dishes%}
+    <a class="col-md6 border rounded" href="/menu/dish/{{dish.id}}">
+        <h2>{{dish.name}}</h2>
+    </a>
+    {% endfor %}
 </div>
-{% endfor %}
 {% endblock %}
