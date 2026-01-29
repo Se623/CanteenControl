@@ -2,8 +2,8 @@ from sqlalchemy import Column, Integer, String
 from .db_session import SqlAlchemyBase
 
 
-class Dish(SqlAlchemyBase):
-    __tablename__ = 'dishes'
+class Role(SqlAlchemyBase):
+    __tablename__ = 'roles'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String, nullable=True)
+    role = Column(String, nullable=True)

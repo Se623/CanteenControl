@@ -1,4 +1,4 @@
-import sqlalchemy
+from sqlalchemy import Column, ForeignKey, Integer, String
 from .db_session import SqlAlchemyBase
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
@@ -7,16 +7,14 @@ from flask_login import UserMixin
 class User(SqlAlchemyBase, UserMixin):
     __tablename__ = 'users'
 
-    id = sqlalchemy.Column(sqlalchemy.Integer,
-                           primary_key=True, autoincrement=True)
-    surname = sqlalchemy.Column(sqlalchemy.String, nullable=True)
-    name = sqlalchemy.Column(sqlalchemy.String, nullable=True)
-    patronymic = sqlalchemy.Column(sqlalchemy.String, nullable=True)
-    email = sqlalchemy.Column(sqlalchemy.String,
-                              index=True, unique=True, nullable=True)
-    hashed_password = sqlalchemy.Column(sqlalchemy.String, nullable=True)
-    role = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
-    money = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    surname = Column(String, nullable=True)
+    name = Column(String, nullable=True)
+    patronymic = Column(String, nullable=True)
+    email = Column(String, index=True, unique=True, nullable=True)
+    hashed_password = Column(String, nullable=True)
+    role = Column(Integer, ForeignKey("roles.id"))
+    money = Column(Integer, nullable=True)
 
     def set_password(self, password):
         self.hashed_password = generate_password_hash(password)
