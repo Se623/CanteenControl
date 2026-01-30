@@ -1,7 +1,12 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Блюда</h1>
+<div class="d-flex justify-content-between align-items-center">
+    <h1>Блюда</h1>
+    {% if role == "администратор" %}
+    <button type="button" class="btn btn-primary">Создать</button>
+    {% endif %}
+</div>
 <div class="row row-cols-3">
     {% for dish in dishes%}
     <a class="col-md6 border rounded" href="/menu/dish/{{dish.id}}">

@@ -1,10 +1,11 @@
 import os
 
 from flask import Flask, redirect, render_template
-from flask_login import LoginManager, login_required, login_user, logout_user
+from flask_login import LoginManager, login_required, login_user, logout_user, current_user
 
 from data import db_session
 from data.dishes import Dish
+from data.roles import Role
 from data.users import User
 from forms.user import LoginForm, RegisterForm
 
@@ -16,12 +17,17 @@ login_manager.init_app(app)
 @login_manager.user_loader
 def load_user(user_id):
     db_sess = db_session.create_session()
-    return db_sess.query(User).get(user_id)
+    return db_sess.get(User, user_id)
 
 # Главная страница
 @app.route('/')
 def index():
-    return render_template("index.html")
+    db_sess = db_session.create_session()
+    role = None
+    if current_user.is_authenticated:
+        role = db_sess.get(Role, current_user.role).role.title()
+        
+    return render_template("index.html", role=role)
 
 # Страница регистрации
 @app.route('/register', methods=['GET', 'POST'])
@@ -41,13 +47,15 @@ def register():
             surname=form.surname.data,
             name=form.name.data,
             patronymic=form.patronymic.data,
-            email=form.email.data
+            email=form.email.data,
+            role=db_sess.query(Role).filter(Role.role == "ученик").first().id,
+            money=0
         )
         user.set_password(form.password.data)
         db_sess.add(user)
         db_sess.commit()
         return redirect('/login')
-    return render_template('register.html', title='Регистрация', form=form)
+    return render_template('register.html', title='Регистрация', form=form, role=db_sess.get(Role, current_user.role).role)
 
 # Страница входа
 @app.route('/login', methods=['GET', 'POST'])
@@ -62,7 +70,7 @@ def login():
         return render_template('login.html',
                                message="Неправильный логин или пароль",
                                form=form)
-    return render_template('login.html', title='Авторизация', form=form)
+    return render_template('login.html', title='Авторизация', form=form, role=db_sess.get(Role, current_user.role).role)
 
 # Список блюд
 @app.route('/menu', methods=['GET', 'POST'])
@@ -70,7 +78,15 @@ def login():
 def menu():
     db_sess = db_session.create_session()
     dishes = db_sess.query(Dish).all()
-    return render_template("menu.html", dishes=dishes)
+    return render_template("menu.html", dishes=dishes, role=db_sess.get(Role, current_user.role).role)
+
+# Список блюд
+@app.route('/menu/create', methods=['GET', 'POST'])
+@login_required
+def create():
+    db_sess = db_session.create_session()
+    dishes = db_sess.query(Dish).all()
+    return render_template("create.html", dishes=dishes, role=db_sess.get(Role, current_user.role).role)
 
 # Страница блюда
 @app.route('/menu/dish/<int:dish_id>', methods=['GET', 'POST'])
@@ -82,7 +98,7 @@ def dish(dish_id):
     if db_dish is None:
         return render_template('404.html'), 404
 
-    return render_template("dish.html", dish=db_dish)
+    return render_template("dish.html", dish=db_dish, role=db_sess.get(Role, current_user.role).role)
 
 # Выход из аккаунта
 @app.route('/logout')
