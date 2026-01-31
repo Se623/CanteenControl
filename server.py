@@ -7,6 +7,7 @@ from data import db_session
 from data.dishes import Dish
 from data.roles import Role
 from data.users import User
+from forms.supply_request import SupplyForm
 from forms.user import LoginForm, RegisterForm
 
 app = Flask(__name__)
@@ -19,15 +20,17 @@ def load_user(user_id):
     db_sess = db_session.create_session()
     return db_sess.get(User, user_id)
 
+# Получить роль пользователя (внутри шаблона)
+@app.template_filter('get_role')
+def role_filter(user):
+    db_sess = db_session.create_session()
+    role = db_sess.get(Role, user.role).role
+    return role
+
 # Главная страница
 @app.route('/')
 def index():
-    db_sess = db_session.create_session()
-    role = None
-    if current_user.is_authenticated:
-        role = db_sess.get(Role, current_user.role).role.title()
-        
-    return render_template("index.html", role=role)
+    return render_template("index.html")
 
 # Страница регистрации
 @app.route('/register', methods=['GET', 'POST'])
@@ -55,7 +58,7 @@ def register():
         db_sess.add(user)
         db_sess.commit()
         return redirect('/login')
-    return render_template('register.html', title='Регистрация', form=form, role=db_sess.get(Role, current_user.role).role)
+    return render_template('register.html', title='Регистрация', form=form)
 
 # Страница входа
 @app.route('/login', methods=['GET', 'POST'])
@@ -70,7 +73,7 @@ def login():
         return render_template('login.html',
                                message="Неправильный логин или пароль",
                                form=form)
-    return render_template('login.html', title='Авторизация', form=form, role=db_sess.get(Role, current_user.role).role)
+    return render_template('login.html', title='Авторизация', form=form)
 
 # Список блюд
 @app.route('/menu', methods=['GET', 'POST'])
@@ -78,15 +81,19 @@ def login():
 def menu():
     db_sess = db_session.create_session()
     dishes = db_sess.query(Dish).all()
-    return render_template("menu.html", dishes=dishes, role=db_sess.get(Role, current_user.role).role)
+    return render_template("menu.html", dishes=dishes)
 
-# Список блюд
-@app.route('/menu/create', methods=['GET', 'POST'])
+# Создать заявку на пополнение еды
+@app.route('/menu/supply', methods=['GET', 'POST'])
 @login_required
-def create():
-    db_sess = db_session.create_session()
-    dishes = db_sess.query(Dish).all()
-    return render_template("create.html", dishes=dishes, role=db_sess.get(Role, current_user.role).role)
+def supply():
+    form = SupplyForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        user = db_sess.query(User).filter(User.email == form.email.data).first()
+
+    return render_template('supply.html', form=form)
+
 
 # Страница блюда
 @app.route('/menu/dish/<int:dish_id>', methods=['GET', 'POST'])
@@ -98,7 +105,7 @@ def dish(dish_id):
     if db_dish is None:
         return render_template('404.html'), 404
 
-    return render_template("dish.html", dish=db_dish, role=db_sess.get(Role, current_user.role).role)
+    return render_template("dish.html", dish=db_dish)
 
 # Выход из аккаунта
 @app.route('/logout')

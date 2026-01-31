@@ -1,17 +1,48 @@
 {% extends "base.html" %}
 
 {% block content %}
+
 <div class="d-flex justify-content-between align-items-center">
     <h1>Блюда</h1>
-    {% if role == "администратор" %}
-    <button type="button" class="btn btn-primary">Создать</button>
+    {% if role == "повар" %}
+    <button type="button" class="btn btn-primary">Создать заявку на пополнение</button>
     {% endif %}
 </div>
+{% if current_user | get_role == "ученик" %}
 <div class="row row-cols-3">
     {% for dish in dishes%}
-    <a class="col-md6 border rounded" href="/menu/dish/{{dish.id}}">
+    <a class="col-md6 border rounded" style="color: inherit; text-decoration: none;" href="/menu/dish/{{dish.id}}">
+        <img src="/static/img/{{dish.image}}" class="img-thumbnail" alt="Фото {{dish.image}}">
         <h2>{{dish.name}}</h2>
     </a>
     {% endfor %}
 </div>
+{% else %}
+<table class="table">
+  <thead>
+    <tr>
+        <th scope="col">Фото</th>
+        <th scope="col">Название</th>
+        <th scope="col">Оценка</th>
+        <th scope="col">Количество</th>
+        <th scope="col">Цена</th>
+        {% if current_user | get_role == "администратор" %}
+        <th scope="col">Доступность</th>
+        <th scope="col">Действия</th>
+        {% endif %}
+    </tr>
+  </thead>
+    <tbody>
+        {% for dish in dishes%}
+        <tr>
+            <td><img style='max-width:5em; max-height:3em; width: auto; height: auto;' src="/static/img/{{dish.image}}" alt="Фото {{dish.image}}"></td>
+            <td>{{dish.name}}</td>
+            <td>{{dish.rate}}</td>
+            <td>{{dish.quantity}}</td>
+            <td>{{dish.price}}</td>
+        </tr>
+        {% endfor %}
+  </tbody>
+</table>
+{% endif %}
 {% endblock %}

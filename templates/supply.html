@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+<!-- Форма регистрации -->
+{% block content %}
+<h1>Подача заявки на пополнение</h1>
+<form action="" method="post">
+    {{ form.hidden_tag() }}
+    <p>
+        {{ form.dish.label }}<br>
+        {{ form.dish(class="form-control", type="dish") }}<br>
+        {% for error in form.dish.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.quantity.label }}<br>
+        {{ form.quantity(class="form-control", type="quantity") }}<br>
+        {% for error in form.quantity.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+        {% endfor %}
+    </p>
+    <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+    {{message}}
+</form>
+{% endblock %}
