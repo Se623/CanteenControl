@@ -3,8 +3,8 @@ from sqlalchemy.orm import relationship
 from .db_session import SqlAlchemyBase
 
 
-class SupplyRequest(SqlAlchemyBase):
-    __tablename__ = 'supply_requests'
+class Request(SqlAlchemyBase):
+    __tablename__ = 'requests'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     dish_id = Column(Integer, ForeignKey("dishes.id"))
@@ -12,6 +12,6 @@ class SupplyRequest(SqlAlchemyBase):
     sender_id = Column(Integer, ForeignKey("users.id"))
     isaccepted = Column(Boolean, nullable=True)
 
-    dishes = relationship("Dish", back_populates="supply_requests")
-    users = relationship("User", back_populates="supply_requests")
+    dishes = relationship("Dish", back_populates="requests")
+    users = relationship("User", back_populates="requests")
     

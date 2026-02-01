@@ -4,8 +4,8 @@
 
 <div class="d-flex justify-content-between align-items-center">
     <h1>Блюда</h1>
-    {% if role == "повар" %}
-    <button type="button" class="btn btn-primary">Создать заявку на пополнение</button>
+    {% if current_user | get_role == "повар" %}
+    <button type="button" onclick="location.href='/menu/supply'" class="btn btn-primary">Создать заявку на пополнение</button>
     {% endif %}
 </div>
 {% if current_user | get_role == "ученик" %}

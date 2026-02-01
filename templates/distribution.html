@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+<table class="table">
+  <thead>
+    <tr>
+        <th scope="col">ФИО ученика</th>
+        <th scope="col">Блюдо</th>
+        <th scope="col">Количество</th>
+        <th scope="col">Выдача</th>
+    </tr>
+  </thead>
+    <tbody>
+        {% for request in requests %}
+        <tr>
+            <td>{{request.name}}</td>
+            <td>{{request.rate}}</td>
+            <td>{{request.quantity}}</td>
+            <td>Кнопка</td>
+        </tr>
+        {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

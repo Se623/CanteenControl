@@ -2,10 +2,12 @@ import os
 
 from flask import Flask, redirect, render_template
 from flask_login import LoginManager, login_required, login_user, logout_user, current_user
+from sqlalchemy import insert
 
 from data import db_session
 from data.dishes import Dish
 from data.roles import Role
+from data.requests import Request
 from data.users import User
 from forms.supply_request import SupplyForm
 from forms.user import LoginForm, RegisterForm
@@ -90,7 +92,9 @@ def supply():
     form = SupplyForm()
     if form.validate_on_submit():
         db_sess = db_session.create_session()
-        user = db_sess.query(User).filter(User.email == form.email.data).first()
+        db_sess.add(Request(dish_id=form.dish.data.id, quantity=form.quantity.data, sender_id=current_user.id, isaccepted=0))
+        db_sess.commit()
+        return redirect("/")                                        
 
     return render_template('supply.html', form=form)
 
@@ -106,6 +110,21 @@ def dish(dish_id):
         return render_template('404.html'), 404
 
     return render_template("dish.html", dish=db_dish)
+
+
+# Страница выдачи блюд
+@app.route('/distribution', methods=['GET', 'POST'])
+@login_required
+def distribution():
+    db_sess = db_session.create_session()
+    student_requests = db_sess.query(Request).filter(db_sess.get(Role, db_sess.get(User, Request.sender_id).role) == "ученик").first()
+    return render_template("distribution.html", requests=student_requests)
+
+@app.route('/distribution/<int:student_id>', methods=['POST'])
+def trigger_distribution(student_id):
+    db_sess = db_session.create_session()
+    
+
 
 # Выход из аккаунта
 @app.route('/logout')

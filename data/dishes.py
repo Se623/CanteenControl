@@ -12,4 +12,4 @@ class Dish(SqlAlchemyBase):
     rate = Column(Float, nullable=True)
     image = Column(String, nullable=True)
 
-    supply_requests = relationship("SupplyRequest")
+    supply_requests = relationship("Request")

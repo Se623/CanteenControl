@@ -18,7 +18,7 @@ class User(SqlAlchemyBase, UserMixin):
     money = Column(Integer, nullable=True)
 
     roles = relationship("Role", back_populates="users")
-    supply_requests = relationship("SupplyRequest")
+    supply_requests = relationship("Request")
 
     def set_password(self, password):
         self.hashed_password = generate_password_hash(password)
