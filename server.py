@@ -1,8 +1,8 @@
 import os
 
 from flask import Flask, redirect, render_template
-from flask_login import LoginManager, login_required, login_user, logout_user, current_user
-from sqlalchemy import insert
+from flask_login import LoginManager, login_required, login_user, logout_user, current_user 
+from sqlalchemy import update
 
 from data import db_session
 from data.dishes import Dish
@@ -117,13 +117,67 @@ def dish(dish_id):
 @login_required
 def distribution():
     db_sess = db_session.create_session()
-    student_requests = db_sess.query(Request).filter(db_sess.get(Role, db_sess.get(User, Request.sender_id).role) == "ученик").first()
+    student_requests = db_sess.query(Request).filter(db_sess.get(Role, db_sess.get(User, Request.sender_id).role) == "ученик")
     return render_template("distribution.html", requests=student_requests)
 
-@app.route('/distribution/<int:student_id>', methods=['POST'])
-def trigger_distribution(student_id):
+
+# Выдать блюдо ученику
+@app.route('/distribution/<int:request_id>/exec', methods=['POST'])
+@login_required
+def trigger_distribution(request_id):
     db_sess = db_session.create_session()
-    
+    student = db_sess.get(User, db_sess.get(Request, request_id).sender_id)
+    db_sess.delete(student)
+    db_sess.commit()
+    student.money -= db_sess.get(Dish, db_sess.get(Request, request_id).dish_id).price * Dish, db_sess.get(Request, request_id).quantity
+    db_sess.add(student)
+    db_sess.delete(db_sess.get(Request, request_id))
+    db_sess.commit()
+    return redirect("/distribution")
+
+
+# Удалить заявку на выдачу
+@app.route('/distribution/<int:request_id>/del', methods=['GET', 'POST'])
+@login_required
+def delete_distribution(request_id):
+    db_sess = db_session.create_session()
+    db_sess.delete(db_sess.get(Request, request_id))
+    db_sess.commit()
+    return redirect("/distribution")
+
+
+# Страница закупки блюд
+@app.route('/procurement', methods=['GET', 'POST'])
+@login_required
+def procurement():
+    db_sess = db_session.create_session()
+    cook_requests = db_sess.query(Request).join(User).join(Role).filter(Role.role == "повар").all()
+    return render_template("procurement.html", requests=cook_requests)
+
+
+# Закупить блюдо в столовую
+@app.route('/procurement/<int:request_id>/exec', methods=['GET', 'POST']) # TODO: Сделать POST функцию
+@login_required
+def trigger_procurement(request_id):
+    db_sess = db_session.create_session()
+    dish = db_sess.get(Dish, db_sess.get(Dish, request_id).dish_id)
+    db_sess.delete(dish)
+    db_sess.commit()
+    dish.quantity += db_sess.get(Request, request_id).quantity
+    db_sess.add(dish)
+    db_sess.delete(db_sess.get(Request, request_id))
+    db_sess.commit()
+    return redirect("/procurement")
+
+
+# Удалить заявку на закупку
+@app.route('/procurement/<int:request_id>/del', methods=['POST'])
+@login_required
+def delete_procurement(request_id):
+    db_sess = db_session.create_session()
+    db_sess.delete(db_sess.get(Request, request_id))
+    db_sess.commit()
+    return redirect("/procurement")
 
 
 # Выход из аккаунта

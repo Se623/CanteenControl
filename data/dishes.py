@@ -8,8 +8,10 @@ class Dish(SqlAlchemyBase):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, nullable=True)
+    price = Column(Float, nullable=True)
     quantity = Column(Integer, nullable=True)
     rate = Column(Float, nullable=True)
     image = Column(String, nullable=True)
+    description = Column(String, nullable=True)
 
-    supply_requests = relationship("Request")
+    requests = relationship("Request")

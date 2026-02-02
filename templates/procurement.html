@@ -4,7 +4,7 @@
 <table class="table">
   <thead>
     <tr>
-        <th scope="col">ФИО ученика</th>
+        <th scope="col">ФИО повара</th>
         <th scope="col">Блюдо</th>
         <th scope="col">Количество</th>
         <th scope="col">Действия</th>
@@ -17,8 +17,8 @@
             <td>{{request.rate}}</td>
             <td>{{request.quantity}}</td>
             <td><div>
-                <button type="button" onclick="location.href='/distribution/exec'" class="btn btn-primary">Принять</button>
-                <button type="button" onclick="location.href='/distribution/del'" class="btn btn-primary">Удалить</button>
+                <button type="button" onclick="location.href=`/procurement/{{request.id}}/exec`" class="btn btn-primary">Принять</button>
+                <button type="button" onclick="location.href=`/procurement/{{request.id}}/del`" class="btn btn-primary">Удалить</button>
             </div></td>
         </tr>
         {% endfor %}
