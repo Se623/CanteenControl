@@ -10,7 +10,6 @@ class Request(SqlAlchemyBase):
     dish_id = Column(Integer, ForeignKey("dishes.id"))
     quantity = Column(Integer, nullable=True)
     sender_id = Column(Integer, ForeignKey("users.id"))
-    isaccepted = Column(Boolean, nullable=True)
 
     dishes = relationship("Dish", back_populates="requests")
     users = relationship("User", back_populates="requests")

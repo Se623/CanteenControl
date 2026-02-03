@@ -15,3 +15,4 @@ class Dish(SqlAlchemyBase):
     description = Column(String, nullable=True)
 
     requests = relationship("Request")
+    ingridients_log = relationship("IngridientLog")

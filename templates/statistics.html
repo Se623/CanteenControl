@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex flex-column">
+    <h1>Статистика</h1>
+    <div class="d-flex">
+        <div class="row row-cols-2">
+            <button type="button" class="btn btn-primary">Кло-во покупок</button>
+            <button type="button" class="btn btn-primary">Средняя оценка</button>
+
+            <button type="button" class="btn btn-primary">По возрастанию</button>
+            <button type="button" class="btn btn-primary">По убыванию</button>
+        </div>
+        <form method="POST" action="/distribution/{{ request.id }}/del">
+            <button type="submit" class="btn btn-primary">Сформировать отчёт как файл...</button>
+        </form>
+    </div>
+    {{ the_div|safe }}
+    <script src="http://cdn.pydata.org/bokeh/release/bokeh-0.12.5.min.js"></script>
+    <script src="http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.5.min.js"></script>
+    {{ the_script|safe }}
+</div>
+{% endblock %}

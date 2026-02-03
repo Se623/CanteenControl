@@ -17,8 +17,12 @@
             <td>{{request.rate}}</td>
             <td>{{request.quantity}}</td>
             <td><div>
-                <button type="button" onclick="location.href=`/procurement/{{request.id}}/exec`" class="btn btn-primary">Принять</button>
-                <button type="button" onclick="location.href=`/procurement/{{request.id}}/del`" class="btn btn-primary">Удалить</button>
+                <form method="POST" action="/procurement/{{ request.id }}/exec">
+                  <button type="submit" class="btn btn-primary">Принять</button>
+                </form>
+                <form method="POST" action="/procurement/{{ request.id }}/del">
+                  <button type="submit" class="btn btn-primary">Удалить</button>
+                </form>
             </div></td>
         </tr>
         {% endfor %}

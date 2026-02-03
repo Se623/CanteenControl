@@ -32,7 +32,7 @@
                     </li>
                     {% if current_user | get_role == "повар" %}
                     <li class="nav-item">
-                        <a class="nav-link" href="/menu">Выдача блюд</a>
+                        <a class="nav-link" href="/distribution">Выдача блюд</a>
                     </li>
                     {% endif %}
                     {% if current_user | get_role == "администратор" %}
@@ -40,7 +40,7 @@
                         <a class="nav-link" href="/menu/statistics">Статистика</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/menu">Согласование закупок</a>
+                        <a class="nav-link" href="/procurement">Согласование закупок</a>
                     </li>
                     {% endif %}
                     {% endif %}

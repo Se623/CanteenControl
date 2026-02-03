@@ -3,11 +3,8 @@
 {% block content %}
 <div class="d-flex flex-column">
     <h1>{{dish.name}}</h1>
-    <img src="/static/img/{{dish.image}}" class="img-thumbnail" alt="Фото {{dish.image}}">
-    <div class="d-flex">
-        <div>Ингредиенты:</div>
-        
-    </div>
+    <img src="/static/img/{{dish.image}}" class="img-thumbnail" style='max-width:10em; max-height:20em; width: auto; height: auto;' alt="Фото {{dish.image}}">
+    <div>Ингредиенты: {{ ingridients }}</div>
     <div>Осталось: {{dish.quantity}} штук</div>
     <div>Цена: {{dish.price}} рублей</div>
     <div class="d-flex">

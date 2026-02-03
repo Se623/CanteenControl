@@ -1,11 +1,13 @@
 import os
 
-from flask import Flask, redirect, render_template
+from flask import Flask, redirect, render_template, request
 from flask_login import LoginManager, login_required, login_user, logout_user, current_user 
-from sqlalchemy import update
+from datetime import datetime
 
 from data import db_session
 from data.dishes import Dish
+from data.ingridients import Ingridient
+from data.ingridients_log import IngridientLog
 from data.roles import Role
 from data.requests import Request
 from data.users import User
@@ -33,6 +35,29 @@ def role_filter(user):
 @app.route('/')
 def index():
     return render_template("index.html")
+
+# Добавить деньги на аккаунт
+@app.route('/payment/money', methods=['POST'])
+@login_required
+def add_money():
+    db_sess = db_session.create_session()
+    money = request.form['money']
+    student = db_sess.get(User, current_user.id)
+    student.money += money
+    db_sess.commit()
+    return redirect("/")
+
+# Добавить абонемент на аккаунт
+@app.route('/payment/subscription', methods=['POST'])
+@login_required
+def add_months():
+    db_sess = db_session.create_session()
+    months = request.form['months']
+    student = db_sess.get(User, current_user.id)
+    if student.subscription_end == None or student.subscription_end < datetime.today():
+        pass
+    db_sess.commit()
+    return redirect("/")
 
 # Страница регистрации
 @app.route('/register', methods=['GET', 'POST'])
@@ -105,15 +130,17 @@ def supply():
 def dish(dish_id):
     db_sess = db_session.create_session()
     db_dish = db_sess.get(Dish, dish_id)
+    
+    ingridients = []
+    ingridient_logs = db_sess.query(IngridientLog).filter(IngridientLog.dish_id == db_dish.id).all()
+    for log in ingridient_logs:
+        ingridients.append(db_sess.query(Ingridient).filter(Ingridient.id == log.ingridient_id).first().name) 
 
-    if db_dish is None:
-        return render_template('404.html'), 404
-
-    return render_template("dish.html", dish=db_dish)
+    return render_template("dish.html", dish=db_dish, ingridients=", ".join(ingridients))
 
 
 # Страница выдачи блюд
-@app.route('/distribution', methods=['GET', 'POST'])
+@app.route('/distribution', methods=['GET'])
 @login_required
 def distribution():
     db_sess = db_session.create_session()
@@ -127,17 +154,14 @@ def distribution():
 def trigger_distribution(request_id):
     db_sess = db_session.create_session()
     student = db_sess.get(User, db_sess.get(Request, request_id).sender_id)
-    db_sess.delete(student)
-    db_sess.commit()
     student.money -= db_sess.get(Dish, db_sess.get(Request, request_id).dish_id).price * Dish, db_sess.get(Request, request_id).quantity
-    db_sess.add(student)
     db_sess.delete(db_sess.get(Request, request_id))
     db_sess.commit()
     return redirect("/distribution")
 
 
 # Удалить заявку на выдачу
-@app.route('/distribution/<int:request_id>/del', methods=['GET', 'POST'])
+@app.route('/distribution/<int:request_id>/del', methods=['POST'])
 @login_required
 def delete_distribution(request_id):
     db_sess = db_session.create_session()
@@ -156,15 +180,12 @@ def procurement():
 
 
 # Закупить блюдо в столовую
-@app.route('/procurement/<int:request_id>/exec', methods=['GET', 'POST']) # TODO: Сделать POST функцию
+@app.route('/procurement/<int:request_id>/exec', methods=['POST'])
 @login_required
 def trigger_procurement(request_id):
     db_sess = db_session.create_session()
-    dish = db_sess.get(Dish, db_sess.get(Dish, request_id).dish_id)
-    db_sess.delete(dish)
-    db_sess.commit()
+    dish = db_sess.get(Dish, db_sess.get(Request, request_id).dish_id)
     dish.quantity += db_sess.get(Request, request_id).quantity
-    db_sess.add(dish)
     db_sess.delete(db_sess.get(Request, request_id))
     db_sess.commit()
     return redirect("/procurement")

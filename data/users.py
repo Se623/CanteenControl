@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, Integer, String, Float
+from sqlalchemy import Column, ForeignKey, Integer, String, Float, DateTime
 from sqlalchemy.orm import relationship
 from .db_session import SqlAlchemyBase
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -16,6 +16,7 @@ class User(SqlAlchemyBase, UserMixin):
     hashed_password = Column(String, nullable=True)
     role = Column(Integer, ForeignKey("roles.id"))
     money = Column(Float, nullable=True)
+    subscription_end = Column(DateTime, nullable=True)
 
     roles = relationship("Role", back_populates="users")
     requests = relationship("Request")
