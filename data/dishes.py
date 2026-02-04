@@ -10,9 +10,10 @@ class Dish(SqlAlchemyBase):
     name = Column(String, nullable=True)
     price = Column(Float, nullable=True)
     quantity = Column(Integer, nullable=True)
-    rate = Column(Float, nullable=True)
     image = Column(String, nullable=True)
     description = Column(String, nullable=True)
+    timesbought = Column(Integer, nullable=True)
 
     requests = relationship("Request")
     ingridients_log = relationship("IngridientLog")
+    ratings_log = relationship("RatingLog")

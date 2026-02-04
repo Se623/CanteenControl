@@ -2,12 +2,18 @@ import os
 
 from flask import Flask, redirect, render_template, request
 from flask_login import LoginManager, login_required, login_user, logout_user, current_user 
+from bokeh.models import (HoverTool, FactorRange, Plot, LinearAxis, Grid, Range1d)
+from bokeh.models.glyphs import VBar
+from bokeh.plotting import figure
+from bokeh.embed import components
+from bokeh.models.sources import ColumnDataSource
 from datetime import datetime
 
 from data import db_session
 from data.dishes import Dish
 from data.ingridients import Ingridient
 from data.ingridients_log import IngridientLog
+from data.ratings_log import RatingLog
 from data.roles import Role
 from data.requests import Request
 from data.users import User
@@ -34,6 +40,12 @@ def role_filter(user):
 # Главная страница
 @app.route('/')
 def index():
+    if current_user.is_authenticated:
+        db_sess = db_session.create_session()
+        student = db_sess.get(User, current_user.id)
+        if student.subscription_end != None and student.subscription_end < datetime.today():
+            student.subscription_end = None
+        db_sess.commit()
     return render_template("index.html")
 
 # Добавить деньги на аккаунт
@@ -55,7 +67,9 @@ def add_months():
     months = request.form['months']
     student = db_sess.get(User, current_user.id)
     if student.subscription_end == None or student.subscription_end < datetime.today():
-        pass
+        student.subscription_end = datetime.today() + datetime.timedelta(months * 30)
+    else:
+        student.subscription_end += datetime.timedelta(months * 30)
     db_sess.commit()
     return redirect("/")
 
@@ -171,7 +185,7 @@ def delete_distribution(request_id):
 
 
 # Страница закупки блюд
-@app.route('/procurement', methods=['GET', 'POST'])
+@app.route('/procurement', methods=['GET'])
 @login_required
 def procurement():
     db_sess = db_session.create_session()
@@ -199,6 +213,59 @@ def delete_procurement(request_id):
     db_sess.delete(db_sess.get(Request, request_id))
     db_sess.commit()
     return redirect("/procurement")
+
+# Страница статистики по оценке
+@app.route('/statistics/rate', methods=['GET', 'POST'])
+@login_required
+def statistics_rate():
+    data = {"dishes": [], "rate": []}
+    db_sess = db_session.create_session()
+
+    for dish in db_sess.query(Dish).all():
+        data['dishes'].append(dish.name)
+        c = 0
+        l = 0
+        for logs in db_sess.query(RatingLog).filter(RatingLog.dish_id == dish.id).all():
+            c += logs.rate
+            l += 1
+        data['rate'].append(c / l)
+
+    plot = figure(
+        title="Самые высоко оцениваемые блюда", 
+        height=350, 
+        sizing_mode="stretch_width"
+    )
+
+    glyph = VBar(x="Блюда", top="Оценка", bottom=0, width=.8)
+    plot.add_glyph(ColumnDataSource(data), glyph)
+
+    script, div = components(plot)
+    return render_template("statistics.html", script=script, div=div)
+
+# Страница статистики по кол-ву покупок
+@app.route('/statistics/times', methods=['GET', 'POST'])
+@login_required
+def statistics_times():
+    data = {"dishes": [], "timesBought": []}
+    db_sess = db_session.create_session()
+
+    for dish in db_sess.query(Dish).all():
+        data['dishes'].append(dish.name)
+        data['timesBought'].append(dish.timesbought)
+
+    xdr = FactorRange(factors=data["dishes"])
+    ydr = Range1d(start=0,end=max(data["timesBought"])*1.5)
+
+
+    plot = figure(title="Блюда", x_range=xdr, y_range=ydr, width=1200,
+                  height=1300, min_border=0, toolbar_location="above",
+                  outline_line_color="#666666")
+
+    glyph = VBar(x="dishes", top="timesBought", bottom=0, width=.8)
+    plot.add_glyph(ColumnDataSource(data), glyph)
+
+    script, div = components(plot)
+    return render_template("statistics.html", script=script, div=div)
 
 
 # Выход из аккаунта
