@@ -1,23 +1,18 @@
 {% extends "base.html" %}
 
-{% block content %}
-<div class="d-flex flex-column">
+{% block content %} 
+<div class="d-flex flex-column align-items-center">
     <h1>Статистика</h1>
-    <div class="d-flex justify-content-between align-items-center">
-        <div class="row row-cols-2">
-            <button type="button" class="btn btn-primary">Кло-во покупок</button>
-            <button type="button" class="btn btn-primary">Средняя оценка</button>
-
-            <button type="button" class="btn btn-primary">По возрастанию</button>
-            <button type="button" class="btn btn-primary">По убыванию</button>
+    <div class="d-flex justify-content-between align-items-center align-self-stretch">
+        <div>
+            <button type="button" class="btn btn-primary" onclick="location.href='/statistics/times'">Кло-во покупок</button>
+            <button type="button" class="btn btn-primary" onclick="location.href='/statistics/rate'">Средняя оценка</button>
         </div>
         <form method="POST" action="/statistics/export">
             <button type="submit" class="btn btn-primary">Сформировать отчёт как файл...</button>
         </form>
     </div>
     {{ div|safe }}
-    <script src="http://cdn.pydata.org/bokeh/release/bokeh-0.12.5.min.js"></script>
-    <script src="http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.5.min.js"></script>
     {{ script|safe }}
 </div>
 {% endblock %}

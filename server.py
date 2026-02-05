@@ -152,6 +152,26 @@ def dish(dish_id):
 
     return render_template("dish.html", dish=db_dish, ingridients=", ".join(ingridients))
 
+# Оценить блюдо
+@app.route('/menu/dish/<int:dish_id>/rate', methods=['POST'])
+@login_required
+def rate_dish(dish_id):
+    db_sess = db_session.create_session()
+    rate = request.form['rating']
+    db_sess.add(RatingLog(dish_id=dish_id, student_id=current_user.id, rate=rate))
+    db_sess.commit()
+    return redirect("/menu/dish/<int:dish_id>")
+
+# Купить блюдо
+@app.route('/menu/dish/<int:dish_id>/buy', methods=['POST'])
+@login_required
+def buy_dish(dish_id):
+    db_sess = db_session.create_session()
+    quantity = request.form['quantity']
+    db_sess.add(Request(dish_id=dish_id, quantity=quantity, sender_id=current_user.id))
+    db_sess.commit()
+    return redirect("/")
+
 
 # Страница выдачи блюд
 @app.route('/distribution', methods=['GET'])
@@ -223,20 +243,23 @@ def statistics_rate():
 
     for dish in db_sess.query(Dish).all():
         data['dishes'].append(dish.name)
-        c = 0
-        l = 0
-        for logs in db_sess.query(RatingLog).filter(RatingLog.dish_id == dish.id).all():
-            c += logs.rate
-            l += 1
-        data['rate'].append(c / l)
+        logs = db_sess.query(RatingLog).filter(RatingLog.dish_id == dish.id).all()
+        if len(logs) != 0:
+            data['rate'].append(sum(logs, key=lambda x: x.rate) / len(logs))
+        else:
+            data['rate'].append(0)
 
-    plot = figure(
-        title="Самые высоко оцениваемые блюда", 
-        height=350, 
-        sizing_mode="stretch_width"
-    )
+    plot = figure(title="Блюда (Оценка)", 
+                  x_range = FactorRange(factors=data["dishes"]),
+                  y_range = Range1d(start=0,end=max(data["rate"])*1.5),
+                  width=1200,
+                  height=500, 
+                  min_border=0, 
+                  toolbar_location="above",
+                  outline_line_color="#666666")
 
-    glyph = VBar(x="Блюда", top="Оценка", bottom=0, width=.8)
+    glyph = VBar(x="dishes", top="rate", bottom=0, width=.8)
+    plot.toolbar.logo = None
     plot.add_glyph(ColumnDataSource(data), glyph)
 
     script, div = components(plot)
@@ -253,19 +276,30 @@ def statistics_times():
         data['dishes'].append(dish.name)
         data['timesBought'].append(dish.timesbought)
 
-    xdr = FactorRange(factors=data["dishes"])
-    ydr = Range1d(start=0,end=max(data["timesBought"])*1.5)
-
-
-    plot = figure(title="Блюда", x_range=xdr, y_range=ydr, width=1200,
-                  height=1300, min_border=0, toolbar_location="above",
+    plot = figure(title="Блюда (Кол-во заказов)", 
+                  x_range = FactorRange(factors=data["dishes"]),
+                  y_range = Range1d(start=0,end=max(data["timesBought"])*1.5),
+                  width=1200,
+                  height=500, 
+                  min_border=0, 
+                  toolbar_location="above",
                   outline_line_color="#666666")
 
     glyph = VBar(x="dishes", top="timesBought", bottom=0, width=.8)
+    plot.toolbar.logo = None
     plot.add_glyph(ColumnDataSource(data), glyph)
 
     script, div = components(plot)
     return render_template("statistics.html", script=script, div=div)
+
+
+# Создать отчёт
+@app.route('/statistics/report', methods=['POST'])
+@login_required
+def statistics_report():
+    db_sess = db_session.create_session()
+
+    return redirect("/statistics/times")
 
 
 # Выход из аккаунта
