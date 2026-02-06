@@ -21,7 +21,13 @@
                   </li>
                   <li class="list-group-item d-flex justify-content-between align-items-center">
                     <h6 class="m-0">Конец абонемента</h6>
-                    <span>-</span>
+                    <span>
+                      {% if current_user.subscription_end == None %}
+                      -
+                      {% else %}
+                      {{ current_user.subscription_end.strftime('%m/%d/%Y %I:%M') }}
+                      {% endif %}
+                    </span>
                   </li>
                 </ul>
                 {% endif %}
@@ -45,9 +51,6 @@
                 <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history-tab-pane" type="button" role="tab" aria-controls="history-tab-pane" aria-selected="false">История</button>
               </li>
               {% endif %}
-              <li class="nav-item" role="presentation">
-                <button class="nav-link" id="password-tab" data-bs-toggle="tab" data-bs-target="#password-tab-pane" type="button" role="tab" aria-controls="password-tab-pane" aria-selected="false">Пароль</button>
-              </li>
             </ul>
             <div class="tab-content pt-4" id="profileTabContent">
                 <div class="tab-pane fade show active" id="overview-tab-pane" role="tabpanel" aria-labelledby="overview-tab" tabindex="0">
@@ -82,28 +85,40 @@
                 {% if current_user | get_role == "ученик" %}
                 <div class="tab-pane fade" id="payment-tab-pane" role="tabpanel" aria-labelledby="payment-tab" tabindex="0">
                     <div class="d-flex flex-column">
-                      <div class="d-flex justify-content-evenly align-items-center py-2 border rounded">
+                      <form method="POST" action="/payment/money" class="d-flex justify-content-evenly align-items-center py-2 border rounded">
                         <h4>Разовый платёж</h4>
                         <div class="d-flex flex-column justify-content-evenly">
                           <div>Кол-во рублей</div>
                           <div class="input-group">
-                            <input type="text" class="form-control" placeholder="0" aria-label="0">
+                            <input type="number" name="money" class="form-control" placeholder="0" aria-label="0">
                             <span class="input-group-text">₽</span>
                           </div>
                         </div>
-                        <button type="button" class="btn btn-dark">Оплатить</button>
-                      </div>
+                        <button type="submit" class="btn btn-dark">Оплатить</button>
+                      </form>
                       <div class="d-flex justify-content-evenly align-items-center py-2 border rounded">
+                        <script>
+                            function updatePrice(input){
+                              var elementValue = input.value;
+                              if (input.value == "") {
+                                document.getElementById("updatedLabel").innerHTML = "0 ₽";
+                              } else {
+                                document.getElementById("updatedLabel").innerHTML = (elementValue * 3000) + " ₽";
+                              }
+                            }
+                        </script>
                         <h4>Абонемент</h4>
-                        <div class="d-flex flex-column justify-content-evenly">
-                          <div>Кол-во месяцев</div>
-                          <input type="number" class="form-control" placeholder="0" aria-label="0">
-                          <div>Абонемент закончится: </div>
+                        <div class="d-flex">
+                          <div>К оплате: </div>
+                          <div id="updatedLabel">0 ₽</div>
                         </div>
-                        <div class="d-flex flex-column justify-content-evenly">
-                          <div>К оплате</div>
-                          <button type="button" class="btn btn-dark">Оплатить</button>
-                        </div>
+                        <form method="POST" action="/payment/subscription" class="d-flex justify-content-evenly">
+                          <div class="d-flex flex-column justify-content-evenly me-2">
+                            <div>Кол-во месяцев</div>
+                            <input type="number" name="months" class="form-control" onkeyup = updatePrice(this) placeholder="0" min="0" aria-label="0">
+                          </div>
+                          <button type="submit" class="btn btn-dark align-self-center">Оплатить</button>
+                        </form>
                       </div>
                     </div>
                 </div>
@@ -111,27 +126,6 @@
                     <div>аааааа</div>
                 </div>
                 {% endif %}
-                <div class="tab-pane fade" id="password-tab-pane" role="tabpanel" aria-labelledby="password-tab" tabindex="0">
-                    <form action="#!">
-                    <div class="row gy-3 gy-xxl-4">
-                        <div class="col-12">
-                        <label for="currentPassword" class="form-label">Текущий пароль</label>
-                        <input type="password" class="form-control" id="currentPassword">
-                        </div>
-                        <div class="col-12">
-                        <label for="newPassword" class="form-label">Новый пароль</label>
-                        <input type="password" class="form-control" id="newPassword">
-                        </div>
-                        <div class="col-12">
-                        <label for="confirmPassword" class="form-label">Повторите пароль</label>
-                        <input type="password" class="form-control" id="confirmPassword">
-                        </div>
-                        <div class="col-12">
-                        <button type="submit" class="btn btn-primary">Изменить пароль</button>
-                        </div>
-                    </div>
-                    </form>
-                </div>
             </div>
           </div>
         </div>

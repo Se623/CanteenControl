@@ -7,7 +7,7 @@ from bokeh.models.glyphs import VBar
 from bokeh.plotting import figure
 from bokeh.embed import components
 from bokeh.models.sources import ColumnDataSource
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from data import db_session
 from data.dishes import Dish
@@ -53,7 +53,7 @@ def index():
 @login_required
 def add_money():
     db_sess = db_session.create_session()
-    money = request.form['money']
+    money = int(request.form['money'])
     student = db_sess.get(User, current_user.id)
     student.money += money
     db_sess.commit()
@@ -64,12 +64,13 @@ def add_money():
 @login_required
 def add_months():
     db_sess = db_session.create_session()
-    months = request.form['months']
+    months = int(request.form['months'])
     student = db_sess.get(User, current_user.id)
+    student.money -= months * 3000
     if student.subscription_end == None or student.subscription_end < datetime.today():
-        student.subscription_end = datetime.today() + datetime.timedelta(months * 30)
+        student.subscription_end = datetime.today() + timedelta(months * 30)
     else:
-        student.subscription_end += datetime.timedelta(months * 30)
+        student.subscription_end += timedelta(months * 30)
     db_sess.commit()
     return redirect("/")
 
