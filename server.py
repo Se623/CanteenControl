@@ -298,11 +298,15 @@ def trigger_distribution(request_id):
     db_sess = db_session.create_session()
     if db_sess.get(Role, current_user.id).role != "повар":
         abort(403)
+    if db_sess.get(Dish, db_sess.get(Request, request_id).dish_id).quantity < db_sess.get(Request, request_id).quantity:
+        abort(403)
     student = db_sess.get(User, db_sess.get(Request, request_id).sender_id)
+    dish = db_sess.get(Dish, db_sess.get(Request, request_id).dish_id)
     if student.subscription_end != None and student.subscription_end > datetime.today():
         pass
     elif student.money >= db_sess.get(Dish, db_sess.get(Request, request_id).dish_id).price * db_sess.get(Request, request_id).quantity:
         student.money -= db_sess.get(Dish, db_sess.get(Request, request_id).dish_id).price * db_sess.get(Request, request_id).quantity
+        dish.quantity -= db_sess.get(Request, request_id).quantity
         db_sess.commit()
     else:
         raise PaymentRequired()
