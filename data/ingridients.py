@@ -10,3 +10,4 @@ class Ingridient(SqlAlchemyBase):
     name = Column(String, nullable=True)
 
     ingridients_log = relationship("IngridientLog")
+    prefs_log = relationship("PreferenceLog")

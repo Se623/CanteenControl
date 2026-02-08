@@ -21,6 +21,7 @@ class User(SqlAlchemyBase, UserMixin):
     roles = relationship("Role", back_populates="users")
     requests = relationship("Request")
     ratings_log = relationship("RatingLog")
+    prefs_log = relationship("PreferenceLog")
 
     def set_password(self, password):
         self.hashed_password = generate_password_hash(password)

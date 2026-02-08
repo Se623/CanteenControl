@@ -5,20 +5,35 @@
     <h1>{{dish.name}}</h1>
     <img src="/static/img/{{dish.image}}" class="img-thumbnail" style='max-width:20em; max-height:40em; width: auto; height: auto;' alt="Фото {{dish.image}}">
     <div>Ингредиенты: {{ ingridients }}</div>
+    {% if prefs == "" and alers == "" %}
+    <div>Блюдо не содержит аллергенов</div>
+    {% elif alers != "" %}
+    <div class="border border-danger border-3 rounded">Блюдо содержит аллергены: {{alers}}</div>
+    {% elif prefs != "" %}
+    <div class="border border-success border-3 rounded">Блюдо содержит любимые ингридиенты: {{prefs}}</div>
+    {% endif %}
     <div>Осталось: {{dish.quantity}} штук</div>
     <div>Цена: {{dish.price}} рублей</div>
-    <form method="POST" action="/dish/{{ dish.id }}/rate">
+    <div>Оценка: {{rate}}</div>
+    {% if userRate != None %}
+    <div>Ваша оценка: {{userRate}}</div>
+    {% endif %}
+    <form method="POST" action="/menu/dish/{{ dish.id }}/rate">
         <label for="rating">
             Оцените блюдо:
             <input type="number" id="rating" name="rating" min="1", max="5"/>
-            <button type="button" class="btn btn-primary">Оценить</button>
+            <button type="submit" class="btn btn-primary">Оценить</button>
         </label>
     </form>
-    <form method="POST" action="/dish/{{ dish.id }}/buy" class="mt-5">
+    <form method="POST" action="/menu/dish/{{ dish.id }}/buy" class="mt-5">
         <label for="quantity">
             Кол-во
             <input type="number" id="quantity" name="quantity" min="1"/>
+            {% if alers != "" %}
+            <button type="submit" class="btn btn-primary" disabled>Заказать</button>
+            {% else %}
             <button type="submit" class="btn btn-primary">Заказать</button>
+            {% endif %}
         </label>
     </form>
     </div>

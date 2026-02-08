@@ -17,7 +17,11 @@ def global_init(db_file):
     conn_str = f'sqlite:///{db_file.strip()}?check_same_thread=False'
     print(f"Подключение к базе данных по адресу {conn_str}")
 
-    engine = create_engine(conn_str, echo=False)
+    engine = create_engine(conn_str,     
+                           pool_size=10,    
+                           max_overflow=20,  
+                           pool_timeout=60,
+                           pool_recycle=60)
     __factory = sessionmaker(bind=engine)
 
     from . import _models

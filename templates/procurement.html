@@ -13,15 +13,15 @@
     <tbody>
         {% for request in requests %}
         <tr>
-            <td>{{request.name}}</td>
-            <td>{{request.rate}}</td>
+            <td>{{request | get_NSP}}</td>
+            <td>{{request | get_dish}}</td>
             <td>{{request.quantity}}</td>
-            <td><div>
+            <td><div class="d-flex">
                 <form method="POST" action="/procurement/{{ request.id }}/exec">
-                  <button type="submit" class="btn btn-primary">Принять</button>
+                  <button type="submit" class="btn btn-success">Принять</button>
                 </form>
                 <form method="POST" action="/procurement/{{ request.id }}/del">
-                  <button type="submit" class="btn btn-primary">Удалить</button>
+                  <button type="submit" class="btn btn-danger">Удалить</button>
                 </form>
             </div></td>
         </tr>

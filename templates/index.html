@@ -48,6 +48,11 @@
                 <button class="nav-link" id="payment-tab" data-bs-toggle="tab" data-bs-target="#payment-tab-pane" type="button" role="tab" aria-controls="payment-tab-pane" aria-selected="false">Оплата</button>
               </li>
               <li class="nav-item" role="presentation">
+                <button class="nav-link" id="payment-tab" data-bs-toggle="tab" data-bs-target="#preference-tab-pane" type="button" role="tab" aria-controls="preference-tab-pane" aria-selected="false">Предпочтения</button>
+              </li>
+              {% endif %}
+              {% if current_user | get_role != "администратор" %}
+              <li class="nav-item" role="presentation">
                 <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history-tab-pane" type="button" role="tab" aria-controls="history-tab-pane" aria-selected="false">История</button>
               </li>
               {% endif %}
@@ -122,8 +127,93 @@
                       </div>
                     </div>
                 </div>
+                <div class="tab-pane fade" id="preference-tab-pane" role="tabpanel" aria-labelledby="preference-tab" tabindex="0">
+                  <div>
+                    <form method="POST" action="/prefs/add" class="d-flex flex-column align-items-start">
+                      <select name="ingridients">
+                        {% for ingridient in ingridients %}
+                        <option value="{{ingridient.name}}">{{ingridient.name}}</option>
+                        {% endfor %}
+                      </select>
+                      <label for="is_liked">
+                        <input type="checkbox" id="is_liked" name="is_liked" switch />
+                        Неотмечено - аллерген, отмечено - любимый ингредиент
+                      </label>
+                      <button type="submit" class="btn btn-primary">Добавить</button>
+                    </form>
+                    <table class="table">
+                      <thead>
+                        <tr>
+                            <th scope="col">Ингридиент</th>
+                            <th scope="col">Тип</th>
+                            <th scope="col">Действия</th>
+                        </tr>
+                      </thead>
+                        <tbody>
+                            {% for log in logs %}
+                            <tr>
+                                <td>{{log | get_name}}</td>
+                                {% if log.is_liked %}
+                                <td>Предпочтение</td>
+                                {% else %}
+                                <td>Аллерген</td>
+                                {% endif %}
+                                <td>
+                                  <form method="POST" action="/prefs/{{log.id}}/del">
+                                    <button type="submit" class="btn btn-danger">Удалить</button>
+                                  </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                {% endif %}
+                {% if current_user | get_role != "администратор" %}
                 <div class="tab-pane fade" id="history-tab-pane" role="tabpanel" aria-labelledby="history-tab" tabindex="0">
-                    <div>аааааа</div>
+                    <table class="table">
+                      <thead>
+                        <tr>
+                            <th scope="col">Блюдо</th>
+                            {% if current_user | get_role == "ученик" %}
+                            <th scope="col">Цена (руб.)</th>
+                            {% endif %}
+                            <th scope="col">Количество</th>
+                            <th scope="col">Состояние</th>
+                            <th scope="col">Действия</th>
+                        </tr>
+                      </thead>
+                        <tbody>
+                            {% for request in requests %}
+                            <tr>
+                                <td>{{request | get_dish}}</td>
+                                {% if current_user | get_role == "ученик" %}
+                                <td>{{request | get_price}}</td>
+                                {% endif %}
+                                <td>{{request.quantity}}</td>
+                                {% if request.is_accepted %}
+                                <td>Заявка принята</td>
+                                {% else %}
+                                <td>Заявка не принята</td>
+                                {% endif %}
+                                <td>
+                                  {% if not request.is_accepted %}
+                                  {% if current_user | get_role == "ученик" %}
+                                  <form method="POST" action="/distribution/{{ request.id }}/del">
+                                    <button type="submit" class="btn btn-danger">Удалить</button>
+                                  </form>
+                                  {% elif current_user | get_role == "повар" %}
+                                  <form method="POST" action="/procurement/{{ request.id }}/del">
+                                    <button type="submit" class="btn btn-danger">Удалить</button>
+                                  </form>
+                                  {% endif %}
+                                  {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                      </tbody>
+                    </table>
                 </div>
                 {% endif %}
             </div>
@@ -134,6 +224,6 @@
   </div>
 </section>
 {% else %}
-<h6>Пожалуйста, войдите или зарегистрируетесь!</h6>
+<h3>Пожалуйста, войдите или зарегистрируетесь!</h3>
 {% endif %}
 {% endblock %}
