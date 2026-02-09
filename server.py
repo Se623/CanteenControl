@@ -145,6 +145,8 @@ def add_months():
         abort(403)
     months = int(request.form['months'])
     student = db_sess.get(User, current_user.id)
+    if student.money < months * 3000:
+        raise PaymentRequired()
     student.money -= months * 3000
     if student.subscription_end == None or student.subscription_end < datetime.today():
         student.subscription_end = datetime.today() + timedelta(months * 30)
