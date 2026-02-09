@@ -18,10 +18,10 @@ def global_init(db_file):
     print(f"Подключение к базе данных по адресу {conn_str}")
 
     engine = create_engine(conn_str,     
-                           pool_size=10,    
-                           max_overflow=20,  
-                           pool_timeout=60,
-                           pool_recycle=60)
+                           pool_size=40,    
+                           max_overflow=80,  
+                           pool_timeout=20,
+                           pool_recycle=20)
     __factory = sessionmaker(bind=engine)
 
     from . import _models

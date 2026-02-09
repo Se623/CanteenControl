@@ -378,19 +378,20 @@ def statistics_rate():
     if db_sess.get(Role, current_user.id).role != "администратор":
         abort(403)
 
-    data = {"dishes": [], "timesBought": []}
+    data = {"dishes": [], "rate": []}
     
     for dish in db_sess.query(Dish).all():
         data['dishes'].append(dish.name)
         logs = db_sess.query(RatingLog).filter(RatingLog.dish_id == dish.id).all()
-        if len(logs) != 0:
-            data['rate'].append(sum(logs, key=lambda x: x.rate) / len(logs))
+        logscom = [x.rate for x in logs]
+        if len(logscom) != 0:
+            data['rate'].append(sum(logscom) / len(logs))
         else:
             data['rate'].append(0)
 
     plot = figure(title="Блюда (Оценка)", 
                   x_range = FactorRange(factors=data["dishes"]),
-                  y_range = Range1d(start=0,end=max(data["rate"])*1.5),
+                  y_range = Range1d(start=0,end=max(data["rate"])),
                   width=1200,
                   height=500, 
                   min_border=0, 
